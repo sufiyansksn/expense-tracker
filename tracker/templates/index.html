@@ -3,67 +3,337 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Expense Tracker</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <link rel="stylesheet" href="/media/css/main.css">
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
+        .container {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            color: #1a1a2e;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .balance-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .balance-label {
+            font-size: 13px;
+            opacity: 0.85;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .balance-amount {
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .summary-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            flex: 1;
+            border-radius: 10px;
+            padding: 14px 16px;
+            text-align: center;
+        }
+
+        .summary-card.income {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+        }
+
+        .summary-card.expense {
+            background: #fff1f2;
+            border: 1px solid #fecdd3;
+        }
+
+        .summary-card .label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 4px;
+        }
+
+        .summary-card.income .label { color: #16a34a; }
+        .summary-card.expense .label { color: #dc2626; }
+
+        .summary-card .amount {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .summary-card.income .amount { color: #15803d; }
+        .summary-card.expense .amount { color: #b91c1c; }
+
+        h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 12px;
+        }
+
+        .list {
+            list-style: none;
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .list::-webkit-scrollbar { width: 4px; }
+        .list::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        .list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border-left: 4px solid;
+            background: #f8fafc;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .list li:hover {
+            transform: translateX(2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .list li.plus  { border-left-color: #22c55e; }
+        .list li.minus { border-left-color: #ef4444; }
+
+        .transaction-info { display: flex; flex-direction: column; gap: 2px; }
+
+        .transaction-desc {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .transaction-date {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .transaction-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .transaction-amount {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .list li.plus  .transaction-amount { color: #16a34a; }
+        .list li.minus .transaction-amount { color: #dc2626; }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #cbd5e1;
+            font-size: 14px;
+            padding: 4px 6px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: color 0.15s, background 0.15s;
+            line-height: 1;
+        }
+
+        .delete-btn:hover {
+            color: #ef4444;
+            background: #fff1f2;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 24px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .divider {
+            height: 1px;
+            background: #f1f5f9;
+            margin-bottom: 20px;
+        }
+
+        .form-section h3 { margin-bottom: 14px; }
+
+        .form-control {
+            margin-bottom: 14px;
+        }
+
+        .form-control label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        .form-control input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #1e293b;
+            outline: none;
+            transition: border-color 0.15s;
+            background: #f8fafc;
+        }
+
+        .form-control input:focus {
+            border-color: #667eea;
+            background: #fff;
+        }
+
+        .hint {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s;
+            margin-top: 4px;
+        }
+
+        .btn:hover { opacity: 0.92; }
+        .btn:active { transform: scale(0.98); }
+    </style>
+
+    
 </head>
 <body>
-     <div class="container">
+    <div class="container">
+
+        <!-- Header -->
         <div class="header">
-            <img src="https://i.ibb.co/jfScDTC/budget.png" alt="Expense Tracker" />
-            <div class="balance-container">
-                <h2>Your Balance</h2>
-                <h2 id="balance" class="balance">${{current_balance.current_balance}}</h2>
+            <h1>💰 Expense Tracker</h1>
+        </div>
+
+        <!-- Balance -->
+        <div class="balance-box">
+            <div class="balance-label">Your Balance</div>
+            <div class="balance-amount">
+                ₹{{ current_balance.current_balance|floatformat:2 }}
             </div>
         </div>
-        <div class="inc-exp-container">
-            <div>
-                <h4>Income</h4>
-                <p id="money-plus" class="money plus">+${{income}}</p>
+
+        <!-- Income / Expense Summary -->
+        <div class="summary-row">
+            <div class="summary-card income">
+                <div class="label">Income</div>
+                <div class="amount">₹{{ income|floatformat:2 }}</div>
             </div>
-            <div>
-                <h4>Expenses</h4>
-                <p id="money-minus" class="money minus">${{expense}}</p>
+            <div class="summary-card expense">
+                <div class="label">Expenses</div>
+                <div class="amount">₹{{ expense|floatformat:2 }}</div>
             </div>
         </div>
+
+        <!-- Transaction History -->
         <h3>History</h3>
-
-
-        <ul id="list" class="list">
-            {% for transaction in transactions %}
-
-            <li class="{% if transaction.expense_type == 'DEBIT' %} minus {% else %} plus {% endif %}">
-                {{transaction.description}} <span> {{transaction.amount}} </span>
-                <a class="delete-btn" href="{% url 'delete_transaction' transaction.id %}">
-                    <i class="fas fa-trash-alt"></i></a>
-            </li>
-
-            {% endfor %}
-
-
-
+        <ul class="list">
+            {% if transactions %}
+                {% for transaction in transactions %}
+                <li class="{% if transaction.expence_type == 'DEBIT' %}minus{% else %}plus{% endif %}">
+                    <div class="transaction-info">
+                        <span class="transaction-desc">{{ transaction.description }}</span>
+                        <span class="transaction-date">{{ transaction.created_at|date:"d M Y, h:i A" }}</span>
+                    </div>
+                    <div class="transaction-right">
+                        <span class="transaction-amount">
+                            {% if transaction.expence_type == 'DEBIT' %}-{% else %}+{% endif %}₹{{ transaction.amount|floatformat:2 }}
+                        </span>
+                        <a class="delete-btn" href="{% url 'delete_transaction' transaction.id %}" title="Delete">&#128465;</a>
+                    </div>
+                </li>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">No transactions yet. Add one below!</div>
+            {% endif %}
         </ul>
 
+        <div class="divider"></div>
 
-        <h3>Add new transaction</h3>
-        <form method="POST" id="form">
-            {% csrf_token %}
-            <div class="form-control">
-                <label for="text">Description</label>
-                <input type="text" name="description" id="text" placeholder="Enter description..." />
-            </div>
-            <div class="form-control">
-                <label for="amount">Amount <br />
-                    <small>(-100 = expense, 100 = income)</small></label>
-                <input type="number" name="amount" id="amount" placeholder="Enter amount..." />
-            </div>
-            <button class="btn" type="submit">Add transaction</button>
-        </form>
-    </div>
-    <!-- Notification -->
-    <div class="notification-container" id="notification">
-        <p>Please add a description and amount</p>
+        <!-- Add Transaction Form -->
+        <div class="form-section">
+            <h3>Add New Transaction</h3>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-control">
+                    <label for="text">Description</label>
+                    <input type="text" name="description" id="text" placeholder="e.g. Salary, Groceries..." required />
+                </div>
+                <div class="form-control">
+                    <label for="amount">Amount</label>
+                    <input type="number" name="amount" id="amount" placeholder="e.g. 5000 or -500" step="0.01" required />
+                    <div class="hint">Positive number = income &nbsp;|&nbsp; Negative number = expense</div>
+                </div>
+                <button class="btn" type="submit">Add Transaction</button>
+            </form>
+        </div>
+
     </div>
 </body>
 </html>
+
+
